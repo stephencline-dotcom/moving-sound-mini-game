@@ -285,7 +285,7 @@
   right: 7px;
   top: 5px;
   bottom: 4px;
-  background: transparent url('sounds/images/dog-firefighter.png') center bottom / contain no-repeat;
+  background: transparent url('images/dog-firefighter.png') center bottom / contain no-repeat;
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.28));
 }
 
@@ -1209,7 +1209,7 @@ h1 {
   opacity: 0;
   transform: translateX(-50%) scale(0.7);
   transform-origin: center bottom;
-  background: transparent url('sounds/images/flame.png') center 84% / 165% 165% no-repeat;
+  background: transparent url('images/flame.png') center 84% / 165% 165% no-repeat;
   filter: drop-shadow(0 0 8px rgba(255, 139, 61, 0.55));
   will-change: transform, filter, opacity;
 }
@@ -1218,7 +1218,7 @@ h1 {
   content: "";
   position: absolute;
   inset: 0;
-  background: transparent url('sounds/images/flame.png') center 84% / 165% 165% no-repeat;
+  background: transparent url('images/flame.png') center 84% / 165% 165% no-repeat;
   opacity: 0.42;
   filter: blur(3px) saturate(1.18);
   mix-blend-mode: screen;
@@ -1332,7 +1332,7 @@ h1 {
   height: 230px;
   border: 0;
   border-radius: 0;
-  background: transparent url('sounds/images/dog-firefighter.png') center bottom / contain no-repeat;
+  background: transparent url('images/dog-firefighter.png') center bottom / contain no-repeat;
   cursor: default;
   padding: 0;
   z-index: 4;

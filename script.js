@@ -102,16 +102,22 @@ const adminDragonTimeL1Input = document.getElementById('adminDragonTimeL1');
 const adminDragonMissesL1Input = document.getElementById('adminDragonMissesL1');
 const adminDragonGoalL1Input = document.getElementById('adminDragonGoalL1');
 const adminDragonFireDurationL1Input = document.getElementById('adminDragonFireDurationL1');
+const adminDragonSpeedMinL1Input = document.getElementById('adminDragonSpeedMinL1');
+const adminDragonSpeedMaxL1Input = document.getElementById('adminDragonSpeedMaxL1');
 const adminDragonCountL2Input = document.getElementById('adminDragonCountL2');
 const adminDragonTimeL2Input = document.getElementById('adminDragonTimeL2');
 const adminDragonMissesL2Input = document.getElementById('adminDragonMissesL2');
 const adminDragonGoalL2Input = document.getElementById('adminDragonGoalL2');
 const adminDragonFireDurationL2Input = document.getElementById('adminDragonFireDurationL2');
+const adminDragonSpeedMinL2Input = document.getElementById('adminDragonSpeedMinL2');
+const adminDragonSpeedMaxL2Input = document.getElementById('adminDragonSpeedMaxL2');
 const adminDragonCountL3Input = document.getElementById('adminDragonCountL3');
 const adminDragonTimeL3Input = document.getElementById('adminDragonTimeL3');
 const adminDragonMissesL3Input = document.getElementById('adminDragonMissesL3');
 const adminDragonGoalL3Input = document.getElementById('adminDragonGoalL3');
 const adminDragonFireDurationL3Input = document.getElementById('adminDragonFireDurationL3');
+const adminDragonSpeedMinL3Input = document.getElementById('adminDragonSpeedMinL3');
+const adminDragonSpeedMaxL3Input = document.getElementById('adminDragonSpeedMaxL3');
 const adminFireTimeL1Input = document.getElementById('adminFireTimeL1');
 const adminFireMissesL1Input = document.getElementById('adminFireMissesL1');
 const adminFireGoalL1Input = document.getElementById('adminFireGoalL1');
@@ -577,16 +583,22 @@ function syncAdminInputsFromState() {
   adminDragonMissesL1Input.value = String(dragonGameState.levels[0].missesAllowed);
   adminDragonGoalL1Input.value = String(dragonGameState.levels[0].goal);
   adminDragonFireDurationL1Input.value = String((dragonGameState.levels[0].fireDurationMin + dragonGameState.levels[0].fireDurationMax) / 2);
+  adminDragonSpeedMinL1Input.value = String(dragonGameState.levels[0].speedMin);
+  adminDragonSpeedMaxL1Input.value = String(dragonGameState.levels[0].speedMax);
   adminDragonCountL2Input.value = String(dragonGameState.levels[1].dragonCount);
   adminDragonTimeL2Input.value = String(dragonGameState.levels[1].timeLimit);
   adminDragonMissesL2Input.value = String(dragonGameState.levels[1].missesAllowed);
   adminDragonGoalL2Input.value = String(dragonGameState.levels[1].goal);
   adminDragonFireDurationL2Input.value = String((dragonGameState.levels[1].fireDurationMin + dragonGameState.levels[1].fireDurationMax) / 2);
+  adminDragonSpeedMinL2Input.value = String(dragonGameState.levels[1].speedMin);
+  adminDragonSpeedMaxL2Input.value = String(dragonGameState.levels[1].speedMax);
   adminDragonCountL3Input.value = String(dragonGameState.levels[2].dragonCount);
   adminDragonTimeL3Input.value = String(dragonGameState.levels[2].timeLimit);
   adminDragonMissesL3Input.value = String(dragonGameState.levels[2].missesAllowed);
   adminDragonGoalL3Input.value = String(dragonGameState.levels[2].goal);
   adminDragonFireDurationL3Input.value = String((dragonGameState.levels[2].fireDurationMin + dragonGameState.levels[2].fireDurationMax) / 2);
+  adminDragonSpeedMinL3Input.value = String(dragonGameState.levels[2].speedMin);
+  adminDragonSpeedMaxL3Input.value = String(dragonGameState.levels[2].speedMax);
 
   const fireInputGroups = [
     [adminFireTimeL1Input, adminFireMissesL1Input, adminFireGoalL1Input, adminFireSpawnIntervalL1Input, adminFireFlameDurationL1Input],
@@ -714,24 +726,29 @@ function applyDragonLevelFromConfig(index) {
 
 function applyDragonAdminSettings() {
   const dragonInputGroups = [
-    [adminDragonCountL1Input, adminDragonTimeL1Input, adminDragonMissesL1Input, adminDragonGoalL1Input, adminDragonFireDurationL1Input],
-    [adminDragonCountL2Input, adminDragonTimeL2Input, adminDragonMissesL2Input, adminDragonGoalL2Input, adminDragonFireDurationL2Input],
-    [adminDragonCountL3Input, adminDragonTimeL3Input, adminDragonMissesL3Input, adminDragonGoalL3Input, adminDragonFireDurationL3Input],
+    [adminDragonCountL1Input, adminDragonTimeL1Input, adminDragonMissesL1Input, adminDragonGoalL1Input, adminDragonFireDurationL1Input, adminDragonSpeedMinL1Input, adminDragonSpeedMaxL1Input],
+    [adminDragonCountL2Input, adminDragonTimeL2Input, adminDragonMissesL2Input, adminDragonGoalL2Input, adminDragonFireDurationL2Input, adminDragonSpeedMinL2Input, adminDragonSpeedMaxL2Input],
+    [adminDragonCountL3Input, adminDragonTimeL3Input, adminDragonMissesL3Input, adminDragonGoalL3Input, adminDragonFireDurationL3Input, adminDragonSpeedMinL3Input, adminDragonSpeedMaxL3Input],
   ];
 
   for (let index = 0; index < dragonInputGroups.length; index += 1) {
-    const [countInput, timeInput, missesInput, goalInput, fireDurationInput] = dragonInputGroups[index];
+    const [countInput, timeInput, missesInput, goalInput, fireDurationInput, speedMinInput, speedMaxInput] = dragonInputGroups[index];
     const dragonCount = Math.round(clampNumber(countInput.value, 1, 12));
     const timeLimit = Math.round(clampNumber(timeInput.value, 10, 300));
     const missesAllowed = Math.round(clampNumber(missesInput.value, 1, 20));
     const goal = Math.round(clampNumber(goalInput.value, 1, 200));
     const fireDurationSeconds = clampNumber(fireDurationInput.value, 0.2, 5);
+    const speedMin = Math.round(clampNumber(speedMinInput.value, 40, 600));
+    const unclampedSpeedMax = Math.round(clampNumber(speedMaxInput.value, 40, 600));
+    const speedMax = Math.max(speedMin + 10, unclampedSpeedMax);
 
     countInput.value = String(dragonCount);
     timeInput.value = String(timeLimit);
     missesInput.value = String(missesAllowed);
     goalInput.value = String(goal);
     fireDurationInput.value = String(fireDurationSeconds);
+    speedMinInput.value = String(speedMin);
+    speedMaxInput.value = String(speedMax);
 
     dragonGameState.levels[index].dragonCount = dragonCount;
     dragonGameState.levels[index].timeLimit = timeLimit;
@@ -739,6 +756,8 @@ function applyDragonAdminSettings() {
     dragonGameState.levels[index].goal = goal;
     dragonGameState.levels[index].fireDurationMin = fireDurationSeconds;
     dragonGameState.levels[index].fireDurationMax = fireDurationSeconds;
+    dragonGameState.levels[index].speedMin = speedMin;
+    dragonGameState.levels[index].speedMax = speedMax;
   }
 
   if (!dragonGameState.running) {
@@ -830,6 +849,8 @@ function buildAdminSettingsSnapshot() {
       missesAllowed: level.missesAllowed,
       goal: level.goal,
       fireDurationSeconds: (level.fireDurationMin + level.fireDurationMax) / 2,
+      speedMin: level.speedMin,
+      speedMax: level.speedMax,
     })),
     fireLevels: fireGameState.levels.map((level) => ({
       timeLimit: level.timeLimit,
@@ -891,8 +912,12 @@ function applyAdminSettingsSnapshot(snapshot) {
     const fireDurationSeconds = Number.isFinite(storedFireDuration)
       ? clampNumber(storedFireDuration, 0.2, 5)
       : clampNumber((dragonGameState.levels[index].fireDurationMin + dragonGameState.levels[index].fireDurationMax) / 2, 0.2, 5);
+    const dragonSpeedMin = Math.round(clampNumber(dragonLevel.speedMin ?? dragonGameState.levels[index].speedMin, 40, 600));
+    const dragonSpeedMax = Math.max(dragonSpeedMin + 10, Math.round(clampNumber(dragonLevel.speedMax ?? dragonGameState.levels[index].speedMax, 40, 600)));
     dragonGameState.levels[index].fireDurationMin = fireDurationSeconds;
     dragonGameState.levels[index].fireDurationMax = fireDurationSeconds;
+    dragonGameState.levels[index].speedMin = dragonSpeedMin;
+    dragonGameState.levels[index].speedMax = dragonSpeedMax;
 
     const fireSpawn = clampNumber(
       fireLevel.spawnIntervalSeconds ?? fireLevel.spawnInterval ?? fireGameState.levels[index].spawnInterval,
@@ -2174,7 +2199,7 @@ function ensureFireWindows() {
     if (!windowState.helpElement) {
       const helpImage = document.createElement('img');
       helpImage.className = 'window-help';
-      helpImage.src = 'sounds/images/help.png';
+      helpImage.src = 'images/help.png';
       helpImage.alt = '';
       helpImage.setAttribute('aria-hidden', 'true');
       windowState.element.appendChild(helpImage);
