@@ -165,14 +165,28 @@ const adminFireMissesL3Input = document.getElementById('adminFireMissesL3');
 const adminFireGoalL3Input = document.getElementById('adminFireGoalL3');
 const adminFireSpawnIntervalL3Input = document.getElementById('adminFireSpawnIntervalL3');
 const adminFireFlameDurationL3Input = document.getElementById('adminFireFlameDurationL3');
+const adminMartianPeopleCountL1Input = document.getElementById('adminMartianPeopleCountL1');
+const adminMartianUfoCountL1Input = document.getElementById('adminMartianUfoCountL1');
+const adminMartianUfoSpeedL1Input = document.getElementById('adminMartianUfoSpeedL1');
+const adminMartianLiftSpeedL1Input = document.getElementById('adminMartianLiftSpeedL1');
+const adminMartianPeopleCountL2Input = document.getElementById('adminMartianPeopleCountL2');
+const adminMartianUfoCountL2Input = document.getElementById('adminMartianUfoCountL2');
+const adminMartianUfoSpeedL2Input = document.getElementById('adminMartianUfoSpeedL2');
+const adminMartianLiftSpeedL2Input = document.getElementById('adminMartianLiftSpeedL2');
+const adminMartianPeopleCountL3Input = document.getElementById('adminMartianPeopleCountL3');
+const adminMartianUfoCountL3Input = document.getElementById('adminMartianUfoCountL3');
+const adminMartianUfoSpeedL3Input = document.getElementById('adminMartianUfoSpeedL3');
+const adminMartianLiftSpeedL3Input = document.getElementById('adminMartianLiftSpeedL3');
 const adminApplyButton = document.getElementById('adminApply');
 const adminMessage = document.getElementById('adminMessage');
 const soundToggleButtons = Array.from(document.querySelectorAll('.sound-toggle-button'));
 
 const ADMIN_PASSWORD = 'typing1';
 const ADMIN_SETTINGS_STORAGE_KEY = 'moving-sound-admin-settings-v1';
+const ADMIN_AUTH_STORAGE_KEY = 'moving-sound-admin-auth-v1';
 const STUDENT_NAME_STORAGE_KEY = 'moving-sound-student-name-v1';
 const SOUND_ENABLED_STORAGE_KEY = 'moving-sound-sound-enabled-v1';
+const MARTIAN_MAX_UFOS = 12;
 
 let soundEnabled = true;
 
@@ -924,6 +938,18 @@ function syncAdminInputsFromState() {
     spawnInput.value = String(level.spawnInterval);
     flameInput.value = String(level.flameDuration);
   }
+
+  const martianInputGroups = getMartianAdminInputGroups();
+
+  for (let index = 0; index < martianInputGroups.length; index += 1) {
+    const level = martianGameState.levels[index];
+    const [peopleCountInput, ufoCountInput, ufoSpeedInput, liftSpeedInput] = martianInputGroups[index];
+
+    peopleCountInput.value = String(level.peopleCount);
+    ufoCountInput.value = String(level.ufoCount);
+    ufoSpeedInput.value = String(level.ufoSpeed);
+    liftSpeedInput.value = String(level.liftSpeed);
+  }
 }
 
 function applyHomeMenuVisibility() {
@@ -945,6 +971,14 @@ function applyHomeVisibilityAdminSettings() {
 
 function getCarColorLabel(color) {
   return carColorLabels[color] || 'Blue';
+}
+
+function getMartianAdminInputGroups() {
+  return [
+    [adminMartianPeopleCountL1Input, adminMartianUfoCountL1Input, adminMartianUfoSpeedL1Input, adminMartianLiftSpeedL1Input],
+    [adminMartianPeopleCountL2Input, adminMartianUfoCountL2Input, adminMartianUfoSpeedL2Input, adminMartianLiftSpeedL2Input],
+    [adminMartianPeopleCountL3Input, adminMartianUfoCountL3Input, adminMartianUfoSpeedL3Input, adminMartianLiftSpeedL3Input],
+  ];
 }
 
 function applyCarLevelFromConfig(index) {
@@ -1180,15 +1214,13 @@ function ensureMartianEntities() {
     }
   }
 
-  if (martianGameState.ufos.length === 0) {
-    for (let index = 0; index < 3; index += 1) {
+  while (martianGameState.ufos.length < MARTIAN_MAX_UFOS) {
+    const index = martianGameState.ufos.length;
       const ufoElement = document.createElement('div');
       ufoElement.className = 'martian-ufo';
       ufoElement.hidden = true;
       ufoElement.innerHTML = `
-        <span class="martian-ufo-dome"></span>
-        <span class="martian-ufo-saucer"></span>
-        <span class="martian-ufo-lights"></span>
+        <img class="martian-ufo-image" src="images/ufo.png" alt="" aria-hidden="true" />
         <span class="martian-beam"></span>
       `;
 
@@ -1197,13 +1229,15 @@ function ensureMartianEntities() {
         element: ufoElement,
         x: 0,
         y: 0,
-        width: 118,
-        height: 54,
+        width: 132,
+        height: 78,
         speed: martianGameState.ufoSpeed,
+        direction: Math.random() < 0.5 ? -1 : 1,
         active: false,
         personIndex: -1,
+        pauseUntil: 0,
+        nextDecisionAt: 0,
       });
-    }
   }
 }
 
@@ -1221,6 +1255,7 @@ function positionMartianPerson(person) {
 function positionMartianUfo(ufo) {
   ufo.element.style.left = `${ufo.x}px`;
   ufo.element.style.top = `${ufo.y}px`;
+  ufo.element.style.transform = ufo.direction < 0 ? 'scaleX(-1)' : 'scaleX(1)';
 }
 
 function resetMartianPerson(person, laneIndex = Math.floor(Math.random() * 3)) {
@@ -1247,17 +1282,44 @@ function resetMartianPerson(person, laneIndex = Math.floor(Math.random() * 3)) {
 
 function resetMartianUfo(ufo) {
   const width = Math.max(martianGameState.width, 700);
-  ufo.x = -ufo.width - Math.random() * 260;
-  ufo.y = 70 + Math.random() * Math.max(40, martianGameState.height * 0.18);
+  const minX = 12;
+  const maxX = Math.max(minX, width - ufo.width - 12);
+  const now = performance.now();
+  ufo.x = randomBetween(minX, maxX);
+  ufo.y = 28 + Math.random() * Math.max(36, martianGameState.height * 0.18);
   ufo.speed = martianGameState.ufoSpeed * randomBetween(0.92, 1.12);
+  ufo.direction = Math.random() < 0.5 ? -1 : 1;
   ufo.active = false;
   ufo.personIndex = -1;
-  ufo.element.hidden = true;
+  ufo.pauseUntil = now + randomBetween(220, 720);
+  ufo.nextDecisionAt = now + randomBetween(900, 2000);
+  ufo.element.hidden = false;
   ufo.element.classList.remove('is-beaming');
-  if (ufo.x > width) {
-    ufo.x = -ufo.width;
-  }
   positionMartianUfo(ufo);
+}
+
+function resumeMartianUfoRoaming(ufo, keepPosition = true) {
+  const width = Math.max(martianGameState.width, 700);
+  const minX = 12;
+  const maxX = Math.max(minX, width - ufo.width - 12);
+  const now = performance.now();
+
+  ufo.active = false;
+  ufo.personIndex = -1;
+  ufo.direction = Math.random() < 0.5 ? -1 : 1;
+  ufo.speed = martianGameState.ufoSpeed * randomBetween(0.92, 1.12);
+  ufo.x = keepPosition ? Math.min(maxX, Math.max(minX, ufo.x)) : randomBetween(minX, maxX);
+  ufo.y = Math.min(92, Math.max(24, ufo.y));
+  ufo.pauseUntil = now + randomBetween(260, 860);
+  ufo.nextDecisionAt = now + randomBetween(1000, 2200);
+  ufo.element.hidden = false;
+  ufo.element.classList.remove('is-beaming');
+  positionMartianUfo(ufo);
+}
+
+function isMartianPersonAvailableOnScreen(person) {
+  const margin = 20;
+  return person.x + person.width >= margin && person.x <= martianGameState.width - margin;
 }
 
 function resetAllMartianEntities() {
@@ -1290,6 +1352,37 @@ function applyMartianLevelFromConfig(index) {
   updateMartianMisses(level.missesAllowed);
 }
 
+function applyMartianAdminSettings() {
+  const martianInputGroups = getMartianAdminInputGroups();
+
+  for (let index = 0; index < martianInputGroups.length; index += 1) {
+    const [peopleCountInput, ufoCountInput, ufoSpeedInput, liftSpeedInput] = martianInputGroups[index];
+    const peopleCount = Math.round(clampNumber(peopleCountInput.value, 1, 9));
+    const ufoCount = Math.round(clampNumber(ufoCountInput.value, 1, MARTIAN_MAX_UFOS));
+    const ufoSpeed = Math.round(clampNumber(ufoSpeedInput.value, 20, 300));
+    const liftSpeed = Math.round(clampNumber(liftSpeedInput.value, 40, 600));
+
+    peopleCountInput.value = String(peopleCount);
+    ufoCountInput.value = String(ufoCount);
+    ufoSpeedInput.value = String(ufoSpeed);
+    liftSpeedInput.value = String(liftSpeed);
+
+    martianGameState.levels[index].peopleCount = peopleCount;
+    martianGameState.levels[index].ufoCount = ufoCount;
+    martianGameState.levels[index].ufoSpeed = ufoSpeed;
+    martianGameState.levels[index].liftSpeed = liftSpeed;
+  }
+
+  ensureMartianEntities();
+
+  if (!martianGameState.running) {
+    martianGameState.currentLevelIndex = 0;
+    martianGameState.levelHits = 0;
+    applyMartianLevelFromConfig(0);
+    resetAllMartianEntities();
+  }
+}
+
 function startMartianLevel(index) {
   if (index >= martianGameState.levels.length) {
     endMartianGame(`All Martian levels complete. Final score: ${martianGameState.score}`);
@@ -1307,11 +1400,7 @@ function releaseMartianPerson(person, freedByPlayer) {
   const ufo = person.ufoIndex >= 0 ? martianGameState.ufos[person.ufoIndex] : null;
 
   if (ufo) {
-    ufo.active = false;
-    ufo.personIndex = -1;
-    ufo.element.classList.remove('is-beaming');
-    ufo.element.hidden = true;
-    resetMartianUfo(ufo);
+    resumeMartianUfoRoaming(ufo);
   }
 
   person.abducted = false;
@@ -1360,32 +1449,55 @@ function applyMartianMiss(message) {
 }
 
 function tryStartAbduction() {
-  const availableUfo = martianGameState.ufos.find((ufo, index) => index < martianGameState.ufoCount && !ufo.active);
-  const candidates = martianGameState.people.filter((person, index) => (
-    index < martianGameState.peopleCount
-    && person.active
-    && !person.abducted
-    && performance.now() - person.releasedAt > 350
+  const now = performance.now();
+  const availableUfos = martianGameState.ufos.filter((ufo, index) => (
+    index < martianGameState.ufoCount
+    && !ufo.active
+    && now < ufo.pauseUntil
   ));
 
-  if (!availableUfo || candidates.length === 0) {
+  if (availableUfos.length === 0) {
     return false;
   }
 
-  const person = candidates[Math.floor(Math.random() * candidates.length)];
-  const personIndex = martianGameState.people.indexOf(person);
+  const matches = [];
 
-  availableUfo.active = true;
-  availableUfo.personIndex = personIndex;
-  availableUfo.x = person.x - (availableUfo.width - person.width) * 0.5;
-  availableUfo.y = Math.max(56, person.y - 220);
-  availableUfo.speed = martianGameState.ufoSpeed * randomBetween(0.92, 1.12);
-  availableUfo.element.hidden = false;
-  availableUfo.element.classList.add('is-beaming');
-  positionMartianUfo(availableUfo);
+  for (const ufo of availableUfos) {
+    const beamCenterX = ufo.x + ufo.width * 0.5;
+
+    for (let index = 0; index < martianGameState.peopleCount; index += 1) {
+      const person = martianGameState.people[index];
+      const personCenterX = person.x + person.width * 0.5;
+
+      if (!person.active || person.abducted || !isMartianPersonAvailableOnScreen(person)) {
+        continue;
+      }
+
+      if (now - person.releasedAt <= 350) {
+        continue;
+      }
+
+      if (Math.abs(personCenterX - beamCenterX) <= 68) {
+        matches.push({ ufo, person, personIndex: index });
+      }
+    }
+  }
+
+  if (matches.length === 0) {
+    return false;
+  }
+
+  const { ufo, person, personIndex } = matches[Math.floor(Math.random() * matches.length)];
+  ufo.active = true;
+  ufo.personIndex = personIndex;
+  ufo.x = person.x - (ufo.width - person.width) * 0.5;
+  ufo.y = Math.max(32, person.y - 214);
+  ufo.element.hidden = false;
+  ufo.element.classList.add('is-beaming');
+  positionMartianUfo(ufo);
 
   person.abducted = true;
-  person.ufoIndex = martianGameState.ufos.indexOf(availableUfo);
+  person.ufoIndex = martianGameState.ufos.indexOf(ufo);
   person.element.classList.add('is-abducted');
   return true;
 }
@@ -1439,6 +1551,10 @@ function stepMartianGame(timestamp) {
           return;
         }
 
+        if (person.ufoIndex >= 0) {
+          resumeMartianUfoRoaming(martianGameState.ufos[person.ufoIndex]);
+        }
+
         resetMartianPerson(person, person.laneIndex);
       }
     }
@@ -1449,6 +1565,8 @@ function stepMartianGame(timestamp) {
   for (let index = 0; index < martianGameState.ufos.length; index += 1) {
     const ufo = martianGameState.ufos[index];
     const shouldBeVisible = index < martianGameState.ufoCount;
+    const minX = 12;
+    const maxX = Math.max(minX, width - ufo.width - 12);
 
     if (!shouldBeVisible) {
       ufo.element.hidden = true;
@@ -1458,11 +1576,36 @@ function stepMartianGame(timestamp) {
       continue;
     }
 
+    ufo.element.hidden = false;
+
     if (!ufo.active) {
-      continue;
+      if (timestamp >= ufo.nextDecisionAt) {
+        if (Math.random() < 0.45) {
+          ufo.direction *= -1;
+        }
+
+        if (Math.random() < 0.5) {
+          ufo.pauseUntil = timestamp + randomBetween(320, 1120);
+        }
+
+        ufo.nextDecisionAt = timestamp + randomBetween(900, 2200);
+      }
+
+      if (timestamp >= ufo.pauseUntil) {
+        ufo.x += ufo.direction * ufo.speed * delta;
+      }
+
+      if (ufo.x <= minX) {
+        ufo.x = minX;
+        ufo.direction = 1;
+        ufo.pauseUntil = timestamp + randomBetween(220, 720);
+      } else if (ufo.x >= maxX) {
+        ufo.x = maxX;
+        ufo.direction = -1;
+        ufo.pauseUntil = timestamp + randomBetween(220, 720);
+      }
     }
 
-    ufo.element.hidden = false;
     positionMartianUfo(ufo);
   }
 
@@ -1573,6 +1716,17 @@ function buildAdminSettingsSnapshot() {
       flameDurationSeconds: level.flameDuration,
       helpSpawnChance: level.helpSpawnChance,
     })),
+    martianLevels: martianGameState.levels.map((level) => ({
+      timeLimit: level.timeLimit,
+      missesAllowed: level.missesAllowed,
+      goal: level.goal,
+      peopleCount: level.peopleCount,
+      ufoCount: level.ufoCount,
+      walkerSpeedMin: level.walkerSpeedMin,
+      walkerSpeedMax: level.walkerSpeedMax,
+      ufoSpeed: level.ufoSpeed,
+      liftSpeed: level.liftSpeed,
+    })),
   };
 }
 
@@ -1593,6 +1747,7 @@ function applyAdminSettingsSnapshot(snapshot) {
   homeMenuState.showMartianGame = homeMenuVisibility.showMartianGame !== false;
 
   const fireLevels = Array.isArray(snapshot.fireLevels) ? snapshot.fireLevels : [];
+  const martianLevels = Array.isArray(snapshot.martianLevels) ? snapshot.martianLevels : [];
   const legacyFireSettings = snapshot.fireSettings || {};
   const princessByLevel = Array.isArray(snapshot.dragonPrincessEnabledByLevel)
     ? snapshot.dragonPrincessEnabledByLevel
@@ -1672,8 +1827,26 @@ function applyAdminSettingsSnapshot(snapshot) {
       fireGameState.levels[index].flameDuration = fireFlameDuration;
       fireGameState.levels[index].helpSpawnChance = clampNumber(fireLevel.helpSpawnChance ?? fireGameState.levels[index].helpSpawnChance, 0.05, 0.95);
     }
+
+    if (index < martianGameState.levels.length) {
+      const martianLevel = martianLevels[index] || {};
+
+      martianGameState.levels[index].timeLimit = Math.round(clampNumber(martianLevel.timeLimit ?? martianGameState.levels[index].timeLimit, 10, 300));
+      martianGameState.levels[index].missesAllowed = Math.round(clampNumber(martianLevel.missesAllowed ?? martianGameState.levels[index].missesAllowed, 1, 20));
+      martianGameState.levels[index].goal = Math.round(clampNumber(martianLevel.goal ?? martianGameState.levels[index].goal, 1, 200));
+      martianGameState.levels[index].peopleCount = Math.round(clampNumber(martianLevel.peopleCount ?? martianGameState.levels[index].peopleCount, 1, 9));
+      martianGameState.levels[index].ufoCount = Math.round(clampNumber(martianLevel.ufoCount ?? martianGameState.levels[index].ufoCount, 1, MARTIAN_MAX_UFOS));
+      martianGameState.levels[index].walkerSpeedMin = Math.round(clampNumber(martianLevel.walkerSpeedMin ?? martianGameState.levels[index].walkerSpeedMin, 10, 300));
+      martianGameState.levels[index].walkerSpeedMax = Math.max(
+        martianGameState.levels[index].walkerSpeedMin + 4,
+        Math.round(clampNumber(martianLevel.walkerSpeedMax ?? martianGameState.levels[index].walkerSpeedMax, 10, 400)),
+      );
+      martianGameState.levels[index].ufoSpeed = Math.round(clampNumber(martianLevel.ufoSpeed ?? martianGameState.levels[index].ufoSpeed, 20, 300));
+      martianGameState.levels[index].liftSpeed = Math.round(clampNumber(martianLevel.liftSpeed ?? martianGameState.levels[index].liftSpeed, 40, 600));
+    }
   }
 
+  ensureMartianEntities();
   syncAdminInputsFromState();
   applyHomeMenuVisibility();
 
@@ -1706,6 +1879,7 @@ function applyAdminSettingsSnapshot(snapshot) {
     martianGameState.currentLevelIndex = 0;
     martianGameState.levelHits = 0;
     applyMartianLevelFromConfig(0);
+    resetAllMartianEntities();
   }
 
   return true;
@@ -1794,6 +1968,7 @@ function applyAdminSettings() {
   applyCarAdminSettings();
   applyDragonAdminSettings();
   applyFireAdminSettings();
+  applyMartianAdminSettings();
   persistAdminSettingsToStorage();
   adminMessage.textContent = 'Settings applied.';
 }
@@ -2006,10 +2181,15 @@ function unlockAdmin(event) {
     return;
   }
 
-  arenaState.adminUnlocked = true;
-  adminControls.hidden = false;
-  adminUnlockForm.hidden = true;
-  adminMessage.textContent = 'Admin unlocked.';
+  try {
+    sessionStorage.setItem(ADMIN_AUTH_STORAGE_KEY, String(Date.now()));
+  } catch {
+    // Ignore storage restrictions and still continue to admin page.
+  }
+
+  adminPasswordInput.value = '';
+  adminMessage.textContent = 'Opening admin page...';
+  window.location.href = 'admin.html';
 }
 
 function randomBetween(min, max) {
