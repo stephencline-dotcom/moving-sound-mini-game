@@ -13,26 +13,18 @@ const emptyGroupedState = document.getElementById('emptyGroupedState');
 let allResults = [];
 let unsubscribeResults = null;
 
-function formatTimeSpent(seconds) {
-  const safeSeconds = Math.max(0, Math.round(Number(seconds) || 0));
-  const minutes = Math.floor(safeSeconds / 60);
-  const remainder = safeSeconds % 60;
-
-  if (minutes === 0) {
-    return `${remainder}s`;
-  }
-
-  return `${minutes}m ${remainder}s`;
+function formatAccuracy(value) {
+  return `${(Number(value) || 0).toFixed(1)}%`;
 }
 
-function formatPlayedAt(playedAt) {
-  const date = new Date(playedAt);
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Unknown';
+function formatLevelsByGame(levelsByGame) {
+  if (levelsByGame.length === 0) {
+    return 'No completed levels yet';
   }
 
-  return date.toLocaleString();
+  return levelsByGame
+    .map(({ gameName, levelCompleted }) => `${gameName}: Level ${levelCompleted}`)
+    .join(' | ');
 }
 
 function renderFilterOptions(results) {
@@ -47,20 +39,59 @@ function renderFilterOptions(results) {
   gameFilterElement.value = options.includes(currentValue) ? currentValue : 'All Games';
 }
 
-function renderSummary(results) {
-  const totalPlays = results.length;
-  const highestScore = totalPlays > 0 ? Math.max(...results.map((result) => Number(result.score) || 0)) : 0;
-  const averageScore = totalPlays > 0
-    ? results.reduce((sum, result) => sum + (Number(result.score) || 0), 0) / totalPlays
-    : 0;
-  const averageTimeSpent = totalPlays > 0
-    ? results.reduce((sum, result) => sum + (Number(result.timeSpentSeconds) || 0), 0) / totalPlays
-    : 0;
+function buildStudentSummaries(results) {
+  const studentMap = new Map();
 
-  totalPlaysValue.textContent = String(totalPlays);
-  highestScoreValue.textContent = String(highestScore);
-  averageScoreValue.textContent = averageScore.toFixed(1);
-  averageTimeValue.textContent = formatTimeSpent(averageTimeSpent);
+  for (const result of results) {
+    const studentName = result.studentName || 'Student';
+    const gameName = result.gameName || 'Unknown Game';
+    const levelCompleted = Math.max(0, Math.round(Number(result.levelCompleted) || 0));
+    const correctClicks = Number(result.correctClicks) || 0;
+    const missedClicks = Number(result.missedClicks) || 0;
+    const totalClicks = Number(result.totalClicks) || 0;
+    const summary = studentMap.get(studentName) || {
+      studentName,
+      gamesPlayed: new Set(),
+      levelsByGame: new Map(),
+      totalMissedClicks: 0,
+      totalCorrectClicks: 0,
+      totalClicks: 0,
+    };
+
+    summary.gamesPlayed.add(gameName);
+    summary.levelsByGame.set(gameName, Math.max(summary.levelsByGame.get(gameName) || 0, levelCompleted));
+    summary.totalMissedClicks += missedClicks;
+    summary.totalCorrectClicks += correctClicks;
+    summary.totalClicks += totalClicks;
+
+    studentMap.set(studentName, summary);
+  }
+
+  return [...studentMap.values()]
+    .map((summary) => ({
+      studentName: summary.studentName,
+      gamesPlayed: summary.gamesPlayed.size,
+      levelsByGame: [...summary.levelsByGame.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([gameName, levelCompleted]) => ({ gameName, levelCompleted })),
+      totalMissedClicks: summary.totalMissedClicks,
+      averageClickAccuracy: summary.totalClicks > 0
+        ? (summary.totalCorrectClicks / summary.totalClicks) * 100
+        : 0,
+    }))
+    .sort((a, b) => a.studentName.localeCompare(b.studentName));
+}
+
+function renderSummary(results, studentSummaries) {
+  const uniqueGames = new Set(results.map((result) => result.gameName || 'Unknown Game'));
+  const totalCorrectClicks = results.reduce((sum, result) => sum + (Number(result.correctClicks) || 0), 0);
+  const totalClicks = results.reduce((sum, result) => sum + (Number(result.totalClicks) || 0), 0);
+  const averageAccuracy = totalClicks > 0 ? (totalCorrectClicks / totalClicks) * 100 : 0;
+
+  totalPlaysValue.textContent = String(studentSummaries.length);
+  highestScoreValue.textContent = String(uniqueGames.size);
+  averageScoreValue.textContent = String(results.length);
+  averageTimeValue.textContent = formatAccuracy(averageAccuracy);
 }
 
 function renderGroupedResults(results) {
@@ -77,15 +108,18 @@ function renderGroupedResults(results) {
 
   groupedResultsGrid.innerHTML = groups
     .map(([gameName, groupResults]) => {
-      const highestScore = Math.max(...groupResults.map((result) => Number(result.score) || 0));
-      const averageScore = groupResults.reduce((sum, result) => sum + (Number(result.score) || 0), 0) / groupResults.length;
+      const uniqueStudents = new Set(groupResults.map((result) => result.studentName || 'Student')).size;
+      const highestLevelCompleted = Math.max(...groupResults.map((result) => Number(result.levelCompleted) || 0));
+      const totalCorrectClicks = groupResults.reduce((sum, result) => sum + (Number(result.correctClicks) || 0), 0);
+      const totalClicks = groupResults.reduce((sum, result) => sum + (Number(result.totalClicks) || 0), 0);
+      const averageAccuracy = totalClicks > 0 ? (totalCorrectClicks / totalClicks) * 100 : 0;
 
       return `
         <div class="group-card">
           <h3>${gameName}</h3>
-          <span>Total plays: ${groupResults.length}</span>
-          <span>Highest score: ${highestScore}</span>
-          <span>Average score: ${averageScore.toFixed(1)}</span>
+          <span>Students: ${uniqueStudents}</span>
+          <span>Highest level completed: ${highestLevelCompleted}</span>
+          <span>Average accuracy: ${formatAccuracy(averageAccuracy)}</span>
         </div>
       `;
     })
@@ -94,35 +128,34 @@ function renderGroupedResults(results) {
   emptyGroupedState.hidden = groups.length > 0;
 }
 
-function renderTable(results) {
-  const activeFilter = gameFilterElement.value;
-  const filteredResults = activeFilter === 'All Games'
-    ? results
-    : results.filter((result) => result.gameName === activeFilter);
-
-  resultsTableBody.innerHTML = filteredResults
-    .map((result) => `
+function renderTable(studentSummaries) {
+  resultsTableBody.innerHTML = studentSummaries
+    .map((student) => `
       <tr>
-        <td>${result.gameName || ''}</td>
-        <td>${result.studentName || ''}</td>
-        <td>${Number(result.score) || 0}</td>
-        <td>${Number(result.correctClicks) || 0}</td>
-        <td>${Number(result.missedClicks) || 0}</td>
-        <td>${Number(result.totalAttempts) || 0}</td>
-        <td>${formatTimeSpent(result.timeSpentSeconds)}</td>
-        <td>${formatPlayedAt(result.playedAt)}</td>
+        <td>${student.studentName}</td>
+        <td>${student.gamesPlayed}</td>
+        <td>${formatLevelsByGame(student.levelsByGame)}</td>
+        <td>${student.totalMissedClicks}</td>
+        <td>${formatAccuracy(student.averageClickAccuracy)}</td>
       </tr>
     `)
     .join('');
 
-  emptyDashboardState.hidden = filteredResults.length > 0;
+  emptyDashboardState.hidden = studentSummaries.length > 0;
 }
 
 function renderDashboard() {
   renderFilterOptions(allResults);
-  renderSummary(allResults);
-  renderGroupedResults(allResults);
-  renderTable(allResults);
+
+  const activeFilter = gameFilterElement.value;
+  const filteredResults = activeFilter === 'All Games'
+    ? allResults
+    : allResults.filter((result) => result.gameName === activeFilter);
+  const studentSummaries = buildStudentSummaries(filteredResults);
+
+  renderSummary(filteredResults, studentSummaries);
+  renderGroupedResults(filteredResults);
+  renderTable(studentSummaries);
 }
 
 async function clearDashboardData() {

@@ -2,16 +2,21 @@ const LEGACY_RESULTS_STORAGE_KEY = 'moving-sound-game-results-v1';
 const FIRESTORE_RESULTS_COLLECTION = 'gameResults';
 
 function normalizeSavedResult(result) {
+  const correctClicks = Number(result.correctClicks) || 0;
+  const missedClicks = Number(result.missedClicks) || 0;
+  const totalClicks = Number(result.totalClicks ?? result.totalAttempts) || 0;
+
   return {
     id: result.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     gameName: result.gameName || 'Unknown Game',
     studentName: result.studentName || 'Student',
-    score: Number(result.score) || 0,
-    correctClicks: Number(result.correctClicks) || 0,
-    missedClicks: Number(result.missedClicks) || 0,
-    totalAttempts: Number(result.totalAttempts) || 0,
-    timeSpentSeconds: Number(result.timeSpentSeconds) || 0,
-    playedAt: result.playedAt || new Date().toISOString(),
+    levelCompleted: Math.max(0, Math.round(Number(result.levelCompleted) || 0)),
+    correctClicks,
+    missedClicks,
+    totalClicks,
+    clickAccuracy: totalClicks > 0
+      ? (correctClicks / totalClicks) * 100
+      : (Number(result.clickAccuracy) || 0),
     playedAtMs: Number(result.playedAtMs) || Date.now(),
   };
 }
@@ -38,7 +43,14 @@ async function saveResultToFirestore(result) {
   const normalized = normalizeSavedResult(result);
 
   await window.sharedFirestoreDb.collection(FIRESTORE_RESULTS_COLLECTION).add({
-    ...normalized,
+    studentName: normalized.studentName,
+    gameName: normalized.gameName,
+    levelCompleted: normalized.levelCompleted,
+    missedClicks: normalized.missedClicks,
+    totalClicks: normalized.totalClicks,
+    correctClicks: normalized.correctClicks,
+    clickAccuracy: normalized.clickAccuracy,
+    playedAtMs: normalized.playedAtMs,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
 
@@ -67,7 +79,7 @@ async function clearResultsFromFirestore() {
 }
 
 window.gameResultsStore = {
-  // Games call this helper when a round ends.
+  // Games call this helper when a student finishes a level.
   async saveResult(result) {
     const normalized = normalizeSavedResult(result);
 
@@ -81,7 +93,7 @@ window.gameResultsStore = {
     return normalized;
   },
 
-  // The teacher dashboard uses this to load the full shared results list.
+  // The teacher dashboard uses this to load the shared classroom results.
   async loadResults() {
     if (window.firebaseAppReady && window.sharedFirestoreDb) {
       return loadResultsFromFirestore();

@@ -193,50 +193,47 @@
           <p class="eyebrow">Overall Summary</p>
           <div class="summary-grid">
             <div class="summary-card">
-              <span class="label">Total plays</span>
+              <span class="label">Students</span>
               <span class="value" id="totalPlaysValue">0</span>
             </div>
             <div class="summary-card">
-              <span class="label">Highest score</span>
+              <span class="label">Games tracked</span>
               <span class="value" id="highestScoreValue">0</span>
             </div>
             <div class="summary-card">
-              <span class="label">Average score</span>
+              <span class="label">Levels completed</span>
               <span class="value" id="averageScoreValue">0</span>
             </div>
             <div class="summary-card">
-              <span class="label">Average time spent</span>
-              <span class="value" id="averageTimeValue">0s</span>
+              <span class="label">Average click accuracy</span>
+              <span class="value" id="averageTimeValue">0.0%</span>
             </div>
           </div>
         </div>
 
         <div class="teacher-card">
-          <p class="eyebrow">Results Grouped By Game</p>
+          <p class="eyebrow">Quick Game Summary</p>
           <div id="groupedResultsGrid" class="group-grid"></div>
           <div id="emptyGroupedState" class="empty-state" hidden>No game groups yet.</div>
         </div>
 
         <div class="teacher-card">
-          <p class="eyebrow">Saved Results</p>
+          <p class="eyebrow">Student Progress</p>
           <div class="teacher-table-wrap">
             <table class="teacher-table">
               <thead>
                 <tr>
-                  <th>Game Name</th>
                   <th>Student Nickname</th>
-                  <th>Score</th>
-                  <th>Correct Clicks</th>
+                  <th>Games Played</th>
+                  <th>Levels Completed By Game</th>
                   <th>Missed Clicks</th>
-                  <th>Total Attempts</th>
-                  <th>Time Spent</th>
-                  <th>Date/Time</th>
+                  <th>Average Click Accuracy</th>
                 </tr>
               </thead>
               <tbody id="resultsTableBody"></tbody>
             </table>
           </div>
-          <div id="emptyDashboardState" class="empty-state" hidden>No saved game results yet.</div>
+          <div id="emptyDashboardState" class="empty-state" hidden>No saved student progress yet.</div>
         </div>
       </section>
     </main>

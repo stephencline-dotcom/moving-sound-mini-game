@@ -75,6 +75,15 @@
               </span>
             </button>
           </div>
+          <div class="home-slot">
+            <button id="enterMartianGameButton" class="start-button home-start home-martian" type="button">
+              <span class="game-thumb game-thumb-martian" aria-hidden="true"></span>
+              <span class="game-labels">
+                <span class="game-label-title">Martian Madness</span>
+                <span class="game-label-subtitle">Free people from alien beams</span>
+              </span>
+            </button>
+          </div>
         </div>
         <a class="teacher-link" href="teacher.html">Teacher Dashboard</a>
       </div>
@@ -108,6 +117,10 @@
             <label class="admin-toggle-field" for="adminShowFireGame">
               <span>Show Firefighter Rescue</span>
               <input id="adminShowFireGame" type="checkbox" checked />
+            </label>
+            <label class="admin-toggle-field" for="adminShowMartianGame">
+              <span>Show Martian Madness</span>
+              <input id="adminShowMartianGame" type="checkbox" checked />
             </label>
           </div>
 
@@ -318,6 +331,14 @@
               <span>Speed max</span>
               <input id="adminDragonSpeedMaxL1" type="number" min="40" max="600" step="5" value="170" />
             </label>
+            <label class="admin-toggle-field" for="adminDragonPrincessL1">
+              <span>Show Princess</span>
+              <input id="adminDragonPrincessL1" type="checkbox" />
+            </label>
+            <label class="admin-toggle-field" for="adminDragonKnightL1">
+              <span>Show Knight</span>
+              <input id="adminDragonKnightL1" type="checkbox" />
+            </label>
           </div>
 
           <div class="admin-level-group">
@@ -350,6 +371,14 @@
               <span>Speed max</span>
               <input id="adminDragonSpeedMaxL2" type="number" min="40" max="600" step="5" value="195" />
             </label>
+            <label class="admin-toggle-field" for="adminDragonPrincessL2">
+              <span>Show Princess</span>
+              <input id="adminDragonPrincessL2" type="checkbox" />
+            </label>
+            <label class="admin-toggle-field" for="adminDragonKnightL2">
+              <span>Show Knight</span>
+              <input id="adminDragonKnightL2" type="checkbox" />
+            </label>
           </div>
 
           <div class="admin-level-group">
@@ -381,6 +410,54 @@
             <label class="admin-field" for="adminDragonSpeedMaxL3">
               <span>Speed max</span>
               <input id="adminDragonSpeedMaxL3" type="number" min="40" max="600" step="5" value="225" />
+            </label>
+            <label class="admin-toggle-field" for="adminDragonPrincessL3">
+              <span>Show Princess</span>
+              <input id="adminDragonPrincessL3" type="checkbox" checked />
+            </label>
+            <label class="admin-toggle-field" for="adminDragonKnightL3">
+              <span>Show Knight</span>
+              <input id="adminDragonKnightL3" type="checkbox" />
+            </label>
+          </div>
+
+          <div class="admin-level-group">
+            <h3>Dragon Level 4</h3>
+            <label class="admin-field" for="adminDragonCountL4">
+              <span>Dragons on screen</span>
+              <input id="adminDragonCountL4" type="number" min="1" max="12" step="1" value="4" />
+            </label>
+            <label class="admin-field" for="adminDragonTimeL4">
+              <span>Time (seconds)</span>
+              <input id="adminDragonTimeL4" type="number" min="10" max="300" step="1" value="22" />
+            </label>
+            <label class="admin-field" for="adminDragonMissesL4">
+              <span>Misses allowed</span>
+              <input id="adminDragonMissesL4" type="number" min="1" max="20" step="1" value="4" />
+            </label>
+            <label class="admin-field" for="adminDragonGoalL4">
+              <span>Goal (saves)</span>
+              <input id="adminDragonGoalL4" type="number" min="1" max="200" step="1" value="18" />
+            </label>
+            <label class="admin-field" for="adminDragonFireDurationL4">
+              <span>Fire duration (seconds)</span>
+              <input id="adminDragonFireDurationL4" type="number" min="0.2" max="5" step="0.05" value="0.7" />
+            </label>
+            <label class="admin-field" for="adminDragonSpeedMinL4">
+              <span>Speed min</span>
+              <input id="adminDragonSpeedMinL4" type="number" min="40" max="600" step="5" value="170" />
+            </label>
+            <label class="admin-field" for="adminDragonSpeedMaxL4">
+              <span>Speed max</span>
+              <input id="adminDragonSpeedMaxL4" type="number" min="40" max="600" step="5" value="245" />
+            </label>
+            <label class="admin-toggle-field" for="adminDragonPrincessL4">
+              <span>Show Princess</span>
+              <input id="adminDragonPrincessL4" type="checkbox" checked />
+            </label>
+            <label class="admin-toggle-field" for="adminDragonKnightL4">
+              <span>Show Knight</span>
+              <input id="adminDragonKnightL4" type="checkbox" checked />
             </label>
           </div>
 
@@ -621,6 +698,9 @@
               <div class="dragon-sky"></div>
               <div class="dragon-sun" aria-hidden="true"></div>
               <div class="dragon-moat" aria-hidden="true"></div>
+              <div id="dragonKnight" class="dragon-knight" aria-hidden="true" hidden>
+                <img id="dragonKnightImage" src="images/horse.png" alt="" aria-hidden="true" />
+              </div>
               <img class="castle-gilead" src="images/GILEAD_A.png" alt="" aria-hidden="true" />
               <span id="gileadOuch" class="gilead-ouch" aria-hidden="true">Ouch!</span>
               <div class="dragon-castle">
@@ -727,6 +807,68 @@
       </main>
 
       <button id="backToMenuFromFireButton" class="back-button" type="button">Home</button>
+      <button class="sound-toggle-button" type="button" aria-pressed="false">Sound: On</button>
+    </section>
+
+    <section id="martianGameScreen" hidden>
+      <main class="shell">
+        <section class="panel">
+          <div class="copy">
+            <p class="eyebrow">Mini Game</p>
+            <h1>Martian Madness</h1>
+            <p class="description">Aliens shine tractor beams over the city. Click the floating person before the spaceship pulls them away.</p>
+          </div>
+
+          <div class="hud" aria-live="polite">
+            <div class="stat">
+              <span class="label">Score</span>
+              <span class="value" id="martianScore">0</span>
+            </div>
+            <div class="stat">
+              <span class="label">Level</span>
+              <span class="value" id="martianLevel">1</span>
+            </div>
+            <div class="stat">
+              <span class="label">Goal</span>
+              <span class="value" id="martianGoal">0/6</span>
+            </div>
+            <div class="stat">
+              <span class="label">Misses</span>
+              <span class="value" id="martianMisses">3</span>
+            </div>
+            <div class="stat">
+              <span class="label">Status</span>
+              <span class="value" id="martianStatus">Ready</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="arena-wrap">
+          <div class="arena-frame martian-frame">
+            <div id="martianArena" class="martian-arena" aria-label="Martian Madness game area" role="application">
+              <div class="arena-timer" aria-live="polite">
+                <span class="label">Time</span>
+                <span class="value" id="martianTime">30</span>
+              </div>
+              <div class="martian-sky"></div>
+              <div class="martian-moon"></div>
+              <div class="martian-stars"></div>
+              <div class="martian-cityline martian-cityline-back"></div>
+              <div class="martian-cityline martian-cityline-front"></div>
+              <div class="martian-road"></div>
+              <div class="martian-sidewalk"></div>
+              <div id="martianUfoLayer" class="martian-ufo-layer" aria-hidden="true"></div>
+              <div id="martianPeopleLayer" class="martian-people-layer"></div>
+              <div class="martian-start">
+                <button id="martianStartButton" class="start-button martian-start-button" type="button">Play</button>
+              </div>
+              <div class="martian-tag">Tap the floating person to break the beam</div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <button id="backToMenuFromMartianButton" class="back-button" type="button">Home</button>
       <button class="sound-toggle-button" type="button" aria-pressed="false">Sound: On</button>
     </section>
 

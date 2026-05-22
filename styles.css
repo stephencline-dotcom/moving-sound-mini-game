@@ -178,11 +178,11 @@
 .game-label-title {
   font-size: 0.92rem;
   line-height: 1.1;
-  color: #ffffff;
+  color: #000000;
 }
 
 .game-label-subtitle {
-  color: rgba(240, 249, 255, 0.9);
+  color: rgba(0, 0, 0, 0.8);
   font-size: 0.72rem;
   font-weight: 600;
 }
@@ -293,6 +293,39 @@
   content: none;
 }
 
+.game-thumb-martian {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(233, 245, 255, 0.95), rgba(233, 245, 255, 0.12) 18%, transparent 19%),
+    linear-gradient(180deg, #091425 0 60%, #2a3847 60% 100%);
+}
+
+.game-thumb-martian::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 10px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #d2f4ff, #79c8f8 56%, #4c8fcb);
+  box-shadow: 0 4px 10px rgba(113, 208, 255, 0.35);
+}
+
+.game-thumb-martian::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 6px;
+  height: 18px;
+  border-radius: 6px 6px 2px 2px;
+  background:
+    repeating-linear-gradient(90deg, #111b29 0 8px, #1b2736 8px 16px),
+    linear-gradient(180deg, #2d3c4d, #192635);
+  box-shadow: 0 -16px 0 -10px rgba(130, 247, 170, 0.75);
+}
+
 .home-alt {
   background: linear-gradient(135deg, #ffd36b, #ffeab0 55%, #fff8db);
   box-shadow: 0 14px 40px rgba(255, 211, 107, 0.3);
@@ -306,6 +339,11 @@
 .home-fire {
   background: linear-gradient(135deg, #ffd9a8, #fff0ce 55%, #fff8e8);
   box-shadow: 0 14px 40px rgba(255, 168, 76, 0.3);
+}
+
+.home-martian {
+  background: linear-gradient(135deg, #b7ffd7, #e7fff2 55%, #f7fffb);
+  box-shadow: 0 14px 40px rgba(90, 215, 160, 0.28);
 }
 
 .shell {
@@ -1079,6 +1117,114 @@ h1 {
   animation: gileadOuchPop 880ms ease-out;
 }
 
+.dragon-knight {
+  position: absolute;
+  left: 5%;
+  bottom: 49%;
+  width: clamp(62px, 9vw, 91px);
+  height: clamp(69px, 11vw, 107px);
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  will-change: left, transform;
+}
+
+.dragon-knight.is-visible {
+  opacity: 1;
+}
+
+.dragon-knight::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  bottom: -6%;
+  width: 62%;
+  height: 18%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 22% 48%, rgba(141, 116, 86, 0.42), transparent 28%),
+    radial-gradient(circle at 48% 54%, rgba(141, 116, 86, 0.34), transparent 26%),
+    radial-gradient(circle at 74% 46%, rgba(141, 116, 86, 0.3), transparent 24%);
+  opacity: 0;
+  transform: translateY(4px) scale(0.82);
+  filter: blur(1.2px);
+}
+
+.dragon-knight.is-active {
+  animation: dragonKnightRide 11.5s linear infinite;
+}
+
+.dragon-knight.is-active::after {
+  animation: dragonKnightDust 420ms ease-in-out infinite alternate;
+}
+
+.dragon-knight img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 5px 6px rgba(55, 31, 18, 0.28));
+  pointer-events: none;
+  animation: dragonKnightBob 360ms ease-in-out infinite alternate;
+}
+
+@keyframes dragonKnightRide {
+  0% {
+    left: -16%;
+    transform: translateY(0) scaleX(1);
+  }
+  10% {
+    transform: translateY(-2px) scaleX(1);
+  }
+  22% {
+    transform: translateY(0) scaleX(1);
+  }
+  34% {
+    transform: translateY(-3px) scaleX(1);
+  }
+  49.9% {
+    left: 108%;
+    transform: translateY(-1px) scaleX(1);
+  }
+  50% {
+    left: 108%;
+    transform: translateY(-1px) scaleX(-1);
+  }
+  62% {
+    transform: translateY(-3px) scaleX(-1);
+  }
+  74% {
+    transform: translateY(0) scaleX(-1);
+  }
+  88% {
+    transform: translateY(-2px) scaleX(-1);
+  }
+  100% {
+    left: -16%;
+    transform: translateY(0) scaleX(-1);
+  }
+}
+
+@keyframes dragonKnightBob {
+  from {
+    transform: translateY(0) rotate(-1deg);
+  }
+  to {
+    transform: translateY(-5px) rotate(1deg);
+  }
+}
+
+@keyframes dragonKnightDust {
+  from {
+    opacity: 0.18;
+    transform: translateY(5px) scale(0.78);
+  }
+  to {
+    opacity: 0.52;
+    transform: translateY(0) scale(1.04);
+  }
+}
+
 @keyframes gileadOuchPop {
   0% {
     opacity: 0;
@@ -1466,6 +1612,316 @@ h1 {
   visibility: hidden;
 }
 
+.martian-frame {
+  background: rgba(8, 16, 24, 0.86);
+  height: calc(100svh - 3.2rem);
+  max-height: calc(100svh - 3.2rem);
+}
+
+.martian-arena {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, #091423 0 48%, #17283a 48% 74%, #3a4751 74% 100%),
+    radial-gradient(circle at 50% 16%, rgba(165, 232, 255, 0.16), transparent 30%);
+}
+
+.martian-sky,
+.martian-stars,
+.martian-moon,
+.martian-cityline,
+.martian-road,
+.martian-sidewalk,
+.martian-ufo-layer,
+.martian-people-layer {
+  position: absolute;
+}
+
+.martian-sky,
+.martian-stars,
+.martian-ufo-layer,
+.martian-people-layer {
+  inset: 0;
+}
+
+.martian-moon {
+  top: 7%;
+  left: 12%;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f7feff 0 24%, #9ed5ef 25% 52%, rgba(158, 213, 239, 0.16) 53% 100%);
+  box-shadow: 0 0 28px rgba(163, 235, 255, 0.24);
+}
+
+.martian-stars {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.86) 0 1px, transparent 2px),
+    radial-gradient(circle at 22% 32%, rgba(255, 255, 255, 0.82) 0 1px, transparent 2px),
+    radial-gradient(circle at 41% 14%, rgba(255, 255, 255, 0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 64% 26%, rgba(255, 255, 255, 0.84) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.74) 0 1px, transparent 2px),
+    radial-gradient(circle at 76% 36%, rgba(255, 255, 255, 0.68) 0 1px, transparent 2px);
+}
+
+.martian-cityline {
+  left: 0;
+  right: 0;
+  background-repeat: repeat-x;
+}
+
+.martian-cityline-back {
+  top: 32%;
+  bottom: 28%;
+  opacity: 0.6;
+  background:
+    linear-gradient(180deg, transparent 0 24%, rgba(8, 13, 20, 0.92) 24% 100%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 24px,
+      #152332 24px 92px,
+      transparent 92px 104px,
+      #1b2e42 104px 148px,
+      transparent 148px 162px,
+      #13202c 162px 220px
+    );
+}
+
+.martian-cityline-front {
+  top: 40%;
+  bottom: 18%;
+  background:
+    linear-gradient(180deg, transparent 0 20%, rgba(11, 18, 25, 0.98) 20% 100%),
+    repeating-linear-gradient(
+      90deg,
+      #142030 0 58px,
+      transparent 58px 68px,
+      #202f40 68px 144px,
+      transparent 144px 158px,
+      #162838 158px 246px,
+      transparent 246px 258px,
+      #22384b 258px 328px
+    );
+}
+
+.martian-cityline-front::after,
+.martian-cityline-back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(255, 243, 169, 0.1) 0 4px, transparent 4px 12px);
+  mask: linear-gradient(180deg, transparent 0 24%, #000 24% 100%);
+}
+
+.martian-road {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+  background:
+    linear-gradient(180deg, #51606b 0 14%, #343f49 14% 100%),
+    repeating-linear-gradient(90deg, transparent 0 64px, rgba(255, 232, 124, 0.74) 64px 112px, transparent 112px 164px);
+}
+
+.martian-sidewalk {
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  height: 8%;
+  background:
+    linear-gradient(180deg, #8d9ca9, #6f7f8c),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.24) 0 3px, transparent 3px 60px);
+  box-shadow: 0 -3px 0 rgba(255, 255, 255, 0.08), 0 6px 10px rgba(0, 0, 0, 0.22);
+}
+
+.martian-ufo-layer {
+  pointer-events: none;
+  z-index: 3;
+}
+
+.martian-people-layer {
+  inset: 0;
+  z-index: 4;
+}
+
+.martian-ufo {
+  position: absolute;
+  width: 118px;
+  height: 54px;
+  pointer-events: none;
+}
+
+.martian-ufo-saucer {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 0;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #dff8ff, #86c8f0 50%, #5f7e9f);
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.2), 0 10px 18px rgba(70, 185, 255, 0.16);
+}
+
+.martian-ufo-dome {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  top: 4px;
+  height: 24px;
+  border-radius: 50% 50% 42% 42%;
+  background: linear-gradient(180deg, rgba(244, 255, 255, 0.96), rgba(130, 255, 197, 0.78));
+  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.45);
+}
+
+.martian-ufo-lights {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #cfff86 0 2px, transparent 3px);
+  background-size: 18px 8px;
+}
+
+.martian-beam {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 108px;
+  height: 260px;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top center;
+  opacity: 0;
+  clip-path: polygon(46% 0, 54% 0, 88% 100%, 12% 100%);
+  background: linear-gradient(180deg, rgba(171, 255, 194, 0.75), rgba(171, 255, 194, 0.16));
+  filter: blur(1px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.martian-ufo.is-beaming .martian-beam {
+  opacity: 1;
+  transform: translateX(-50%) scaleY(1);
+}
+
+.martian-person {
+  position: absolute;
+  width: 34px;
+  height: 74px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.martian-person-head {
+  position: absolute;
+  left: 9px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f4c6a8;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.martian-person-body {
+  position: absolute;
+  left: 7px;
+  top: 18px;
+  width: 20px;
+  height: 28px;
+  border-radius: 10px 10px 6px 6px;
+  background: linear-gradient(180deg, #ffd36b, #f97316 62%, #d65d0a);
+}
+
+.martian-person-arms,
+.martian-person-legs {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.martian-person-arms {
+  top: 24px;
+  width: 28px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f4c6a8, #f4c6a8);
+}
+
+.martian-person-legs {
+  top: 45px;
+  width: 18px;
+  height: 24px;
+  background:
+    linear-gradient(90deg, transparent 0 3px, #2f3b54 3px 7px, transparent 7px 11px, #2f3b54 11px 15px, transparent 15px 100%);
+}
+
+.martian-person.facing-left {
+  transform: scaleX(-1);
+}
+
+.martian-person.is-abducted {
+  filter: drop-shadow(0 0 10px rgba(168, 255, 188, 0.58));
+}
+
+.martian-person.is-abducted .martian-person-body {
+  background: linear-gradient(180deg, #7cf7b6, #35c67f 60%, #23885a);
+}
+
+.martian-person.is-safe {
+  animation: martianSafePop 220ms ease-out;
+}
+
+.martian-start {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+}
+
+.martian-start-button {
+  min-width: 200px;
+  min-height: 76px;
+  font-size: 1.05rem;
+}
+
+.martian-tag {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 76px);
+  transform: translateX(-50%);
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: rgba(7, 12, 18, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.martian-arena.is-active .martian-tag {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@keyframes martianSafePop {
+  from {
+    transform: translateY(-4px) scale(0.92);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
 .dragon-target {
   position: absolute;
   left: 50%;
@@ -1620,6 +2076,42 @@ h1 {
   opacity: 1;
   transform: scaleX(3.2);
   border-radius: 14px;
+}
+
+.dragon-princess {
+  position: absolute;
+  width: 70px;
+  height: 88px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 4;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.35));
+}
+
+.dragon-princess img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.dragon-princess.is-active {
+  animation: princessFloat 900ms ease-in-out infinite alternate;
+}
+
+@keyframes princessFloat {
+  from {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  to {
+    transform: translate(-50%, -50%) translateY(-6px);
+  }
 }
 
 @keyframes wingFlap {
